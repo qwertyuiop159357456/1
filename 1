@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapCopy</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --border: #1e1e2e;
+    --accent: #f0c040; --accent2: #ff6b35; --text: #e8e8f0;
+    --muted: #55556a; --success: #4ade80;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; min-height: 100vh; padding: 40px 20px 80px; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
+  .wrap { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; gap: 16px; flex-wrap: wrap; }
+  .logo { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .logo span { color: var(--accent); }
+  .tagline { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding-bottom: 6px; }
+  .add-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 36px; display: flex; flex-direction: column; gap: 12px; }
+  .add-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .add-row input[type="text"] { flex: 1; min-width: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; outline: none; transition: border-color 0.2s; }
+  .add-row input[type="text"]:focus { border-color: var(--accent); }
+  .add-row input[type="text"]::placeholder { color: var(--muted); }
+  textarea.add-content { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; resize: vertical; min-height: 80px; outline: none; transition: border-color 0.2s; }
+  textarea.add-content:focus { border-color: var(--accent); }
+  textarea.add-content::placeholder { color: var(--muted); }
+  .btn-add { background: var(--accent); color: #0a0a0f; border: none; border-radius: 8px; padding: 10px 22px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; letter-spacing: 1px; transition: transform 0.1s, opacity 0.2s; white-space: nowrap; }
+  .btn-add:hover { opacity: 0.85; }
+  .btn-add:active { transform: scale(0.97); }
+  .search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; outline: none; transition: border-color 0.2s; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  .count-badge { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+  .count-badge span { color: var(--accent); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s; animation: fadeIn 0.3s ease forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card:active { transform: scale(0.98); }
+  .card-label { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-text { font-size: 0.75rem; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; white-space: pre; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .copy-hint { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .del-btn { background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1; transition: color 0.2s, background 0.2s; }
+  .del-btn:hover { color: var(--accent2); background: rgba(255,107,53,0.1); }
+  .card .flash { position: absolute; inset: 0; background: var(--success); opacity: 0; border-radius: 12px; pointer-events: none; transition: opacity 0.05s; }
+  .card.copied .flash { opacity: 0.12; }
+  .card.copied { border-color: var(--success) !important; }
+  .card.copied .copy-hint { color: var(--success); }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--success); color: #0a0a0f; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; padding: 12px 28px; border-radius: 50px; letter-spacing: 1px; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s; opacity: 0; z-index: 999; pointer-events: none; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty p { font-size: 0.8rem; letter-spacing: 1px; }
+  .top-line { height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; margin-bottom: 40px; width: 60px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-line"></div>
+  <header>
+    <div class="logo">Snap<span>Copy</span></div>
+    <div class="tagline">Click once → Copied ✓</div>
+  </header>
+  <div class="add-box">
+    <div class="add-row">
+      <input type="text" id="labelInput" placeholder="Label (e.g. MATLAB 4, Email...)" />
+      <button class="btn-add" onclick="addCard()">+ Add</button>
+    </div>
+    <textarea class="add-content" id="textInput" placeholder="Paste your text here... (Ctrl+Enter to add)"></textarea>
+  </div>
+  <div class="search-row">
+    <input class="search-input" id="searchInput" placeholder="🔍 Search..." oninput="renderCards()" />
+    <div class="count-badge">Total: <span id="countEl">0</span></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="toast" id="toast">✓ Copied!</div>
+
+<script>
+const STORAGE_KEY = 'snapcopy_v2';
+
+const PRELOADED = [
+  {
+    id: 1001,
+    label: 'MATLAB 1 — Variation of Parameters',
+    text: `syms m x C1 C2\naux_eqn = m^2 + 4 == 0;\nroots_m = solve(aux_eqn, m);\n\ndisp('Roots of auxiliary equation:');\ndisp(roots_m);\n\n% Logic to determine the Complementary Function (CF)\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = C1*exp(roots_m(1)*x) + C2*exp(roots_m(2)*x);\nelseif isreal(roots_m(1)) && roots_m(1) == roots_m(2)\n    CF = (C1 + C2*x)*exp(roots_m(1)*x);\nelseif ~isreal(roots_m(1))\n    alpha = real(roots_m(2));\n    beta = imag(roots_m(2));\n    CF = exp(alpha*x)*(C1*cos(beta*x) + C2*sin(beta*x));\nend\n\ndisp('Complementary Function (C.F.) =');\ndisp(CF);\n\n% Defining basis functions from CF\nf1 = cos(2*x);\nf2 = sin(2*x);\nf1p = diff(f1, x);\nf2p = diff(f2, x);\n\n% Calculating the Wronskian\nW = simplify(det([f1 f2; f1p f2p]));\ndisp('Wronskian W =');\ndisp(W);\n\n% Method of Variation of Parameters for Particular Integral\nR = sec(2*x);\nP = -int(simplify(f2*R/W), x);\nQ = int(simplify(f1*R/W), x);\nyp = simplify(P*f1 + Q*f2);\n\ndisp('Particular Integral y_p =');\ndisp(yp);\n\n% Final General Solution\ny = simplify(CF + yp);\ndisp('General Solution y =');\ndisp(y);`
+  },
+  {
+    id: 1002,
+    label: 'MATLAB 2 — PI Types (Exp, Trig, Poly)',
+    text: `syms D y m x c1 c2\n% --- Auxiliary Equation and CF ---\naux_eqn = m^2 - 5*m + 4;\nroots_m = solve(aux_eqn, m);\n\n% Logic for CF based on roots\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = c1*exp(roots_m(1)*x) + c2*exp(roots_m(2)*x);\nelseif isreal(roots_m(1)) && roots_m(1) == roots_m(2)\n    CF = (c1 + c2*x)*exp(roots_m(1)*x);\nelse\n    alpha = real(roots_m(1));\n    beta = imag(roots_m(1));\n    CF = exp(alpha*x)*(c1*cos(beta*x) + c2*sin(beta*x));\nend\n\n% Display CF\ndisp(CF);\n\n% PI1 - Type 1 (Exponential: e^-2x)\nfD = D^2 - 5*D + 4;\na = -2;\nrhs = exp(a*x);\nden = subs(fD, D, a);\nnum = rhs;\nwhile simplify(den) == 0\n    num = x * num;\n    fD = diff(fD, D);\n    den = subs(fD, D, a);\nend\nPI1 = simplify(num/den);\nfprintf('PI1 =\\n');\ndisp(PI1);\n\n% PI2 - Type 1 (Exponential Case of Failure: e^4x)\nfD = D^2 - 5*D + 4;\na = 4;\nrhs = exp(a*x);\nden = subs(fD, D, a);\nnum = rhs;\nwhile simplify(den) == 0\n    num = x * num;\n    fD = diff(fD, D);\n    den = subs(fD, D, a);\nend\nPI2 = simplify(num/den);\nfprintf('PI2 =\\n');\ndisp(PI2);\n\n% PI3 - Type 2 (Trigonometric: sin3x)\nfD = D^2 - 5*D + 4;\na = 3;\nrhs = sin(a*x);\nfD1 = subs(fD, D^2, -a^2);\nden = expand(fD1 * subs(fD1, D, -D));\nden_val = subs(den, D^2, -a^2);\nnum_trig = expand(subs(fD1, D, -D) * rhs);\nPI3 = simplify(num_trig / den_val);\nfprintf('PI3 =\\n');\ndisp(PI3);\n\n% PI4 - Type 3 (Polynomial: x^2+2x-3)\nrhs = x^2 + 2*x - 3;\nexpansion = D^4/16 - (5*D^3)/8 + (21*D^2)/16 + (5*D)/4 + 1;\nfprintf('expansion =\\n');\ndisp(expansion);\n\nPI4 = simplify((1/4) * (expansion * rhs));\nfprintf('PI4 =\\n');\ndisp(PI4);\n\n% General Solution\ny = simplify(CF + PI1 + PI2 + PI3 + PI4);\nfprintf('General solution (y) =\\n');\ndisp(y);`
+  },
+  {
+    id: 1003,
+    label: 'MATLAB 3 — Newton-Raphson',
+    text: `syms x f(x) df(x)\nf(x)=3*x-cos(x)-1;\ndec=6;\ndf(x)=diff(f(x),x);\na = 0;\nb = 10;\nstep = 1;\nfound = 0;\nfor x = a:1:b\n    if f(x)*f(x+1) < 0\n        a = x;\n        b = x + 1;\n        found = 1;\n        break;\n    end\nend\nif found == 0\n    error('No sign change found in search interval. Try different function.');\nend\nfprintf('Root lies between [%d , %d]\\n', a, b);\n\nif abs(f(a)) < abs(f(b))\n    x0 = a;\nelse\n    x0 = b;\nend\nfprintf('x0 = %.6f\\n', x0);\n\nmax_iter = 25;\nfprintf('\\n Iteration\\t x n\\t\\t f(x n)\\n');\n\nfor i = 1:max_iter\n    x1 = x0 - f(x0)/df(x0);\n    fprintf('%d \\t\\t %.6f \\t %.6f \\n', i, x1, f(x1));\n    if abs(x1 - x0) < 10^(-dec)\n        break;\n    end\n    x0 = x1;\nend\n\nroot = round(x1, dec);\nfprintf('\\n Root (corrected to %d decimal places) is = %.*f\\n', dec, dec, root);\nfprintf('Number of iterations = %d\\n', i);`
+  }
+];
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function save(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+
+function addCard() {
+  const label = document.getElementById('labelInput').value.trim();
+  const text = document.getElementById('textInput').value.trim();
+  if (!text) { document.getElementById('textInput').focus(); return; }
+  const items = load();
+  items.unshift({ id: Date.now(), label: label || 'Untitled', text });
+  save(items);
+  document.getElementById('labelInput').value = '';
+  document.getElementById('textInput').value = '';
+  renderCards();
+}
+
+function deleteCard(id) {
+  save(load().filter(i => i.id !== id));
+  renderCards();
+}
+
+function copyText(id, el) {
+  const item = load().find(i => i.id === id);
+  if (!item) return;
+  navigator.clipboard.writeText(item.text).then(() => {
+    el.classList.add('copied');
+    el.querySelector('.copy-hint').textContent = '✓ Copied!';
+    showToast('✓ Copied!');
+    setTimeout(() => {
+      el.classList.remove('copied');
+      el.querySelector('.copy-hint').textContent = 'Click to copy';
+    }, 1500);
+  });
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderCards() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const all = load();
+  const items = all.filter(i =>
+    i.label.toLowerCase().includes(query) || i.text.toLowerCase().includes(query)
+  );
+  document.getElementById('countEl').textContent = all.length;
+  const grid = document.getElementById('grid');
+  if (items.length === 0) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><p>${query ? 'No results found.' : 'No items yet. Add one above!'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = items.map(item => `
+    <div class="card" id="card-${item.id}" onclick="copyText(${item.id}, this)">
+      <div class="flash"></div>
+      <div class="card-label">${escHtml(item.label)}</div>
+      <div class="card-text">${escHtml(item.text)}</div>
+      <div class="card-footer">
+        <span class="copy-hint">Click to copy</span>
+        <button class="del-btn" title="Delete" onclick="event.stopPropagation(); deleteCard(${item.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('textInput').addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') addCard();
+});
+
+// Init: load existing or seed preloaded
+const existing = load();
+if (existing.length === 0) {
+  save(PRELOADED);
+}
+renderCards();
+</script>
+</body>
+</html>
