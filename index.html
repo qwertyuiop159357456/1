@@ -1,245 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CopyBoard</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f5f5f0;
-    --surface: #ffffff;
-    --border: #e0e0d8;
-    --accent: #1a1a1a;
-    --accent2: #555550;
-    --text: #1a1a1a;
-    --muted: #888880;
-    --success: #2a9d5c;
-    --input-bg: #fafafa;
-  }
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to access KLU network</title>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-  body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; color: #5c5c5c; background-color: #FAFAFA; margin: 0; padding: 0; }
+        .center { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; padding-top: 10vh; }
+        
+        /* PORTAL BOX */
+        .panel { background-color: #fff; border-radius: 0.3em; border: 1px solid #d7dbdd; width: 22em; margin-bottom: 1em; overflow: hidden; }
+        .panel-heading { padding: 1.2em 1em; background-color: #CCCFCE; display: flex; justify-content: center; }
+        
+        /* REDUCED LOGO SIZE */
+        #logo { width: 90%; height: 35px; display: flex; align-items: center; justify-content: center; }
+        #logo img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        
+        .panel-body { padding: 1.8em; text-align: center; }
+        h1 { font-size: 1em; color: #055bb5; font-weight: 400; margin-bottom: 1.2em; }
+        
+        input { border: #d7dbdd solid 1px; border-radius: .5em; width: 90%; padding: 10px; font-size: .85em; margin: 0.6em auto; display: block; outline: none; background: #fff; }
+        input:focus { border: 1px solid #2e8cdc; }
 
-  /* ── LOGIN SCREEN ── */
-  #loginScreen {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; background: var(--bg);
-  }
-  .login-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-    display: flex; flex-direction: column; gap: 20px; align-items: center;
-  }
-  .login-icon { font-size: 2.2rem; margin-bottom: 4px; }
-  .login-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.5rem; font-weight: 800;
-    letter-spacing: -1px; color: var(--text);
-  }
-  .login-sub { font-size: 0.7rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
-  .pw-wrap { position: relative; width: 100%; }
-  .pw-wrap input {
-    width: 100%;
-    background: var(--input-bg);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 13px 44px 13px 16px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.9rem;
-    color: var(--text);
-    outline: none;
-    letter-spacing: 4px;
-    transition: border-color 0.2s;
-  }
-  .pw-wrap input:focus { border-color: var(--accent); }
-  .pw-wrap input::placeholder { letter-spacing: 1px; color: var(--muted); font-size: 0.75rem; }
-  .toggle-pw {
-    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; color: var(--muted);
-    font-size: 1rem; padding: 0; line-height: 1;
-  }
-  .btn-login {
-    width: 100%;
-    background: var(--accent);
-    color: #fff;
-    border: none; border-radius: 10px;
-    padding: 13px;
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 0.9rem; cursor: pointer; letter-spacing: 1px;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-  .btn-login:hover { opacity: 0.85; }
-  .btn-login:active { transform: scale(0.98); }
-  .login-error {
-    font-size: 0.72rem; color: #d94040;
-    letter-spacing: 1px; text-align: center;
-    min-height: 16px;
-    animation: shake 0.3s ease;
-  }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+        .button { width: 90%; font-size: 0.85em; background-color: #44ac33; color: #fff; padding: .8em; border-radius: .3em; font-weight: bold; margin: 1em auto; cursor: pointer; border: none; text-align: center; }
+        
+        #loginErr { color: #e76644; font-size: 0.8em; min-height: 1.2em; margin-top: 5px; display: none; }
+        .footer-text { color: #FF1F0F; font-size: 0.75em; width: 22em; text-align: center; margin-top: 10px; margin-bottom: 50px; }
+        a { text-decoration: none; color: #1987cb; font-size: 0.75em; font-weight: 600; }
 
-  /* ── MAIN APP ── */
-  #app { display: none; padding: 36px 20px 80px; }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  .top-line { height: 2px; background: var(--accent); border-radius: 2px; margin-bottom: 32px; width: 40px; }
+        /* STEALTH ANSWER SECTION */
+        #answerSection { display: none; padding: 10px 20px; background: #fff; border-top: 1px solid #eee; }
+        .program-row { 
+            padding: 15px; 
+            border-bottom: 1px solid #f0f0f0; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .program-row:active { background: #f9f9f9; }
+        .program-name { font-size: 0.85em; color: #444; font-weight: 500; }
+        .copy-status { font-size: 0.8em; color: #44ac33; opacity: 0; font-weight: bold; transition: opacity 0.3s; }
 
-  /* GRID */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-  .card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 12px; padding: 18px;
-    cursor: pointer; position: relative; overflow: hidden;
-    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-    animation: fadeIn 0.3s ease forwards;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-  .card:active { transform: scale(0.98); }
-  .card-label {
-    font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
-    margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .card-text {
-    font-size: 0.72rem; color: var(--accent2); line-height: 1.6;
-    display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;
-    overflow: hidden; white-space: pre;
-  }
-  .card-footer { display: flex; align-items: center; justify-content: flex-end; margin-top: 14px; }
-  .copy-hint {
-    font-size: 0.6rem; color: var(--muted); letter-spacing: 1.5px;
-    text-transform: uppercase; padding: 4px 10px;
-    border: 1px solid var(--border); border-radius: 20px;
-    transition: all 0.2s;
-  }
-  .card:hover .copy-hint { border-color: var(--accent); color: var(--accent); }
-  .card .flash { position: absolute; inset: 0; background: var(--success); opacity: 0; border-radius: 12px; pointer-events: none; transition: opacity 0.05s; }
-  .card.copied .flash { opacity: 0.08; }
-  .card.copied { border-color: var(--success) !important; }
-  .card.copied .copy-hint { color: var(--success) !important; border-color: var(--success) !important; }
-
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(60px);
-    background: var(--accent); color: #fff;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem;
-    padding: 11px 28px; border-radius: 50px; letter-spacing: 1px;
-    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
-    opacity: 0; z-index: 999; pointer-events: none;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-</style>
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2c2c2c; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 0.8em; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 1000; }
+    </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-box">
-    <div class="login-icon"></div>
-    <div class="login-title"></div>
-    <div class="login-sub"></div>
-    <div class="pw-wrap">
-      <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" />
-      <button class="toggle-pw" onclick="togglePw()">👁</button>
+    <div class="center">
+        <div class="panel">
+            <div class="panel-heading">
+                <div id="logo">
+                    <a href="https://www.google.com/"><img src="https://www.kalasalingam.ac.in/wp-content/uploads/2022/02/Logo.png" alt="KLU Logo"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <h1>Sign in to access KLU network</h1>
+                <input id="username" type="text" placeholder="Username">
+                <input id="password" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doFakeLogin()">
+                <div id="loginErr">Authentication failed. Please try again.</div>
+                <div class="button" onclick="doFakeLogin()">Sign in</div>
+                <a href="#">***Change the Password after First time Login***</a>
+            </div>
+        </div>
+        <div class="footer-text">
+            By logging in, you accept the KLU campus terms and conditions and the private policy of this Wi-Fi service.
+        </div>
     </div>
-    <button class="btn-login" onclick="doLogin()">Unlock</button>
-    <div class="login-error" id="loginErr"></div>
-  </div>
 </div>
 
-<!-- APP -->
-<div id="app">
-  <div class="wrap">
-    <div class="top-line"></div>
-    <div class="grid" id="grid"></div>
-  </div>
+<div id="answerSection">
+    <div id="answerList"></div>
+    <div style="text-align: center; color: #eee; font-size: 0.5em; margin: 30px 0;">End of support</div>
 </div>
 
-<div class="toast" id="toast">✓ Copied!</div>
+<div id="toast">✓ Copied</div>
 
 <script>
-const PASSWORD = '159357457';
-const KEY = 'copyboard_v1';
+    const KEY = '159357457';
+    
+    const ANSWERS = [
+        { id: 1, name: "1. Variation of Parameters", code: "syms m x C1 C2\naux_eqn = m^2 + 4 == 0;\nroots_m = solve(aux_eqn, m);\ndisp('Roots:'); disp(roots_m);\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = C1*exp(roots_m(1)*x) + C2*exp(roots_m(2)*x);\nelseif isreal(roots_m(1)) && roots_m(1) == roots_m(2)\n    CF = (C1 + C2*x)*exp(roots_m(1)*x);\nelseif ~isreal(roots_m(1))\n    alpha = real(roots_m(2));\n    beta = imag(roots_m(2));\n    CF = exp(alpha*x)*(C1*cos(beta*x) + C2*sin(beta*x));\nend\ndisp('C.F. ='); disp(CF);\nf1 = cos(2*x); f2 = sin(2*x);\nf1p = diff(f1, x); f2p = diff(f2, x);\nW = simplify(det([f1 f2; f1p f2p]));\ndisp('Wronskian W ='); disp(W);\nR = sec(2*x);\nP = -int(simplify(f2*R/W), x);\nQ = int(simplify(f1*R/W), x);\nyp = simplify(P*f1 + Q*f2);\ndisp('P.I. ='); disp(yp);\ny = simplify(CF + yp);\ndisp('General Solution y ='); disp(y);" },
+        { id: 2, name: "2. PI Types (Exp, Trig, Poly)", code: "syms D y m x c1 c2\naux_eqn = m^2 - 5*m + 4;\nroots_m = solve(aux_eqn, m);\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = c1*exp(roots_m(1)*x) + c2*exp(roots_m(2)*x);\nelse\n    alpha = real(roots_m(1)); beta = imag(roots_m(1));\n    CF = exp(alpha*x)*(c1*cos(beta*x) + c2*sin(beta*x));\nend\ndisp(CF);\nfD = D^2 - 5*D + 4;\na = -2; rhs = exp(a*x); den = subs(fD, D, a); num = rhs;\nwhile simplify(den) == 0\n    num = x * num; fD = diff(fD, D); den = subs(fD, D, a);\nend\nPI1 = simplify(num/den); disp('PI1 ='); disp(PI1);\nrhs = sin(3*x); fD1 = subs(fD, D^2, -9);\nden = expand(fD1 * subs(fD1, D, -D));\nden_val = subs(den, D^2, -9);\nnum_trig = expand(subs(fD1, D, -D) * rhs);\nPI3 = simplify(num_trig / den_val); disp('PI3 ='); disp(PI3);\nrhs = x^2 + 2*x - 3;\nexpansion = D^4/16 - (5*D^3)/8 + (21*D^2)/16 + (5*D)/4 + 1;\nPI4 = simplify((1/4) * (expansion * rhs)); disp('PI4 ='); disp(PI4);\ny = simplify(CF + PI1 + PI3 + PI4); disp('y ='); disp(y);" },
+        { id: 3, name: "3. Newton-Raphson Method", code: "syms x f(x) df(x)\nf(x)=3*x-cos(x)-1; dec=6;\ndf(x)=diff(f(x),x);\na = 0; b = 10; found = 0;\nfor x = a:1:b\n    if f(x)*f(x+1) < 0\n        a = x; b = x + 1; found = 1; break;\n    end\nend\nx0 = b; max_iter = 25;\nfprintf('\\n Iteration\\t x n\\t\\t f(x n)\\n');\nfor i = 1:max_iter\n    x1 = x0 - f(x0)/df(x0);\n    fprintf('%d \\t\\t %.6f \\t %.6f \\n', i, x1, f(x1));\n    if abs(x1 - x0) < 10^(-dec); break; end\n    x0 = x1;\nend\nfprintf('\\n Root = %.6f\\n', x1);" },
+        { id: 4, name: "4. Lagrange Interpolation", code: "syms x y n X\nx = [1997 1999 2001 2002]; y = [43 65 159 248];\nn = length(x); P = 0;\nfor i = 1:n\n    L = 1;\n    for j = 1:n\n        if j ~= i; L = L * (X - x(j)) / (x(i) - x(j)); end\n    end\n    P = P + y(i) * L;\nend\nP = expand(P); disp('Polynomial:'); disp(P);\nxp = 2000; yp = double(subs(P, X, xp));\nfprintf('\\nValue at %.1f is %.2f\\n', xp, yp);" },
+        { id: 5, name: "5. Trapezoidal Rule", code: "syms x f(x)\nf(x) = sin(x); a = 0; b = pi; n = 10;\nx_val = linspace(a, b, n+1); h = (b - a) / n;\ny = f(x_val);\nT = (h/2) * ((y(1) + y(end)) + 2 * sum(y(2:end-1)));\nfprintf('Trapezoidal Result = %.4f\\n', T);" },
+        { id: 6, name: "6. Simpson's 1/3 Rule", code: "syms x f(x)\nf(x) = 1/(x^3 + x + 1); a = 0; b = 2; n = 10;\nx_val = linspace(a, b, n+1); h = (b - a) / n;\ny = f(x_val);\nS = (h/3) * ((y(1) + y(end)) + 4 * sum(y(2:2:end-1)) + 2 * sum(y(3:2:end-2)));\nfprintf('Simpson 1/3 Result = %.4f \\n', S);" },
+        { id: 7, name: "7. Runge-Kutta RK4", code: "f = @(x, y) (y^2-x^2)/(y^2+x^2);\nx0 = 0; y0 = 1; h = 0.2; xn = 0.4;\nn = (xn-x0)/h; x = x0; y = y0;\nfor i = 1:n\n    k1 = h * f(x, y);\n    k2 = h * f(x + h/2, y + k1/2);\n    k3 = h * f(x + h/2, y + k2/2);\n    k4 = h * f(x + h, y + k3);\n    y = y + (k1 + 2*k2 + 2*k3 + k4)/6; x = x + h;\nend\nfprintf('Value at %.2f is %.4f\\n', xn, y);" },
+        { id: 8, name: "8. Euler's Method", code: "f = @(x, y) x + y;\nx0 = 0; y0 = 1; h = 0.1; xn = 1;\nn = (xn-x0)/h; x = x0; y = y0;\nfor i = 1:n\n    y = y + h * f(x, y); x = x + h;\nend\nfprintf('Value at %.1f is %.2f\\n', xn, y);" }
+    ];
 
-const SEED = [
-  { id:101, label:'MATLAB 1 — Variation of Parameters', text:'syms m x C1 C2\naux_eqn = m^2 + 4 == 0;\nroots_m = solve(aux_eqn, m);\n\ndisp(\'Roots of auxiliary equation:\');\ndisp(roots_m);\n\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = C1*exp(roots_m(1)*x) + C2*exp(roots_m(2)*x);\nelseif isreal(roots_m(1)) && roots_m(1) == roots_m(2)\n    CF = (C1 + C2*x)*exp(roots_m(1)*x);\nelseif ~isreal(roots_m(1))\n    alpha = real(roots_m(2));\n    beta = imag(roots_m(2));\n    CF = exp(alpha*x)*(C1*cos(beta*x) + C2*sin(beta*x));\nend\n\ndisp(\'Complementary Function (C.F.) =\');\ndisp(CF);\n\nf1 = cos(2*x);\nf2 = sin(2*x);\nf1p = diff(f1, x);\nf2p = diff(f2, x);\n\nW = simplify(det([f1 f2; f1p f2p]));\ndisp(\'Wronskian W =\');\ndisp(W);\n\nR = sec(2*x);\nP = -int(simplify(f2*R/W), x);\nQ = int(simplify(f1*R/W), x);\nyp = simplify(P*f1 + Q*f2);\n\ndisp(\'Particular Integral y_p =\');\ndisp(yp);\n\ny = simplify(CF + yp);\ndisp(\'General Solution y =\');\ndisp(y);' },
-  { id:102, label:'MATLAB 2 — PI Types (Exp, Trig, Poly)', text:'syms D y m x c1 c2\naux_eqn = m^2 - 5*m + 4;\nroots_m = solve(aux_eqn, m);\n\nif isreal(roots_m(1)) && roots_m(1) ~= roots_m(2)\n    CF = c1*exp(roots_m(1)*x) + c2*exp(roots_m(2)*x);\nelseif isreal(roots_m(1)) && roots_m(1) == roots_m(2)\n    CF = (c1 + c2*x)*exp(roots_m(1)*x);\nelse\n    alpha = real(roots_m(1));\n    beta = imag(roots_m(1));\n    CF = exp(alpha*x)*(c1*cos(beta*x) + c2*sin(beta*x));\nend\ndisp(CF);\n\nfD = D^2 - 5*D + 4;\na = -2; rhs = exp(a*x); den = subs(fD, D, a); num = rhs;\nwhile simplify(den) == 0\n    num = x * num; fD = diff(fD, D); den = subs(fD, D, a);\nend\nPI1 = simplify(num/den);\nfprintf(\'PI1 =\\n\'); disp(PI1);\n\nfD = D^2 - 5*D + 4;\na = 4; rhs = exp(a*x); den = subs(fD, D, a); num = rhs;\nwhile simplify(den) == 0\n    num = x * num; fD = diff(fD, D); den = subs(fD, D, a);\nend\nPI2 = simplify(num/den);\nfprintf(\'PI2 =\\n\'); disp(PI2);\n\nfD = D^2 - 5*D + 4;\na = 3; rhs = sin(a*x);\nfD1 = subs(fD, D^2, -a^2);\nden = expand(fD1 * subs(fD1, D, -D));\nden_val = subs(den, D^2, -a^2);\nnum_trig = expand(subs(fD1, D, -D) * rhs);\nPI3 = simplify(num_trig / den_val);\nfprintf(\'PI3 =\\n\'); disp(PI3);\n\nrhs = x^2 + 2*x - 3;\nexpansion = D^4/16 - (5*D^3)/8 + (21*D^2)/16 + (5*D)/4 + 1;\nPI4 = simplify((1/4) * (expansion * rhs));\nfprintf(\'PI4 =\\n\'); disp(PI4);\n\ny = simplify(CF + PI1 + PI2 + PI3 + PI4);\nfprintf(\'General solution (y) =\\n\'); disp(y);' },
-  { id:103, label:'MATLAB 3 — Newton-Raphson', text:'syms x f(x) df(x)\nf(x)=3*x-cos(x)-1;\ndec=6;\ndf(x)=diff(f(x),x);\na = 0; b = 10; found = 0;\nfor x = a:1:b\n    if f(x)*f(x+1) < 0\n        a = x; b = x + 1; found = 1; break;\n    end\nend\nif found == 0\n    error(\'No sign change found in search interval.\');\nend\nfprintf(\'Root lies between [%d , %d]\\n\', a, b);\n\nif abs(f(a)) < abs(f(b))\n    x0 = a;\nelse\n    x0 = b;\nend\nfprintf(\'x0 = %.6f\\n\', x0);\n\nmax_iter = 25;\nfprintf(\'\\n Iteration\\t x n\\t\\t f(x n)\\n\');\nfor i = 1:max_iter\n    x1 = x0 - f(x0)/df(x0);\n    fprintf(\'%d \\t\\t %.6f \\t %.6f \\n\', i, x1, f(x1));\n    if abs(x1 - x0) < 10^(-dec)\n        break;\n    end\n    x0 = x1;\nend\nroot = round(x1, dec);\nfprintf(\'\\n Root (corrected to %d decimal places) is = %.*f\\n\', dec, dec, root);\nfprintf(\'Number of iterations = %d\\n\', i);' },
-  { id:104, label:'MATLAB 4 — Lagrange Interpolation', text:'syms x y n X\nx = [1997 1999 2001 2002];\ny = [43 65 159 248];\nn = length(x);\nif length(y) ~= n\n    error(\'x and y must have same length.\');\nend\nP = 0;\nfor i = 1:n\n    L = 1;\n    for j = 1:n\n        if j ~= i\n            L = L * (X - x(j)) / (x(i) - x(j));\n        end\n    end\n    P = P + y(i) * L;\nend\nP = expand(P);\ndisp(\'Interpolating Polynomial is:\');\ndisp(P);\nxp = 2000;\nyp = double(subs(P, X, xp));\nfprintf(\'\\nInterpolated value at X=%.1f is %.2f\\n\', xp, yp);' },
-  { id:105, label:'MATLAB 5 — Trapezoidal Rule', text:'syms x f(x)\nf(x) = sin(x);\na = 0; b = pi; n = 9;\nx = linspace(a, b, n+1);\nh = (b - a) / n;\ny = f(x);\nT = (h/2) * ((y(1) + y(end)) + 2 * sum(y(2:end-1)));\nfprintf(\'Approximate integral using Trapezoidal rule = %.4f\\n\', T);\nI = vpa(int(f(x), 0, pi), 4);\ndisp(I);' },
-  { id:106, label:"MATLAB 6 — Simpson's 1/3 Rule", text:'syms x f(x)\nf(x) = 1/(x^3 + x + 1);\na = 0; b = 2; n = 10;\nif mod(n, 2) ~= 0\n    error(\'Number of intervals (n) must be even for Simpsons 1/3 rule\');\nend\nx = linspace(a, b, n+1);\nh = (b - a) / n;\ny = f(x);\nS = (h/3) * ((y(1) + y(end)) + 4 * sum(y(2:2:end-1)) + 2 * sum(y(3:2:end-2)));\nfprintf(\'Approximate integral using Simpsons 1/3 rule = %.4f \\n\', S);\nI = vpa(int(f(x), 0, 2), 4);\ndisp(I);' },
-  { id:107, label:'MATLAB 7 — Runge-Kutta (RK4)', text:'clc; clear;\nf = @(x, y) (y^2-x^2)/(y^2+x^2);\nx0 = 0; y0 = 1; h = 0.2; xn = 0.4;\nn = (xn-x0)/h;\nx = x0; y = y0;\nfprintf(\'Step\\t x\\t\\t y\\n\');\nfor i = 1:n\n    fprintf(\'%d\\t%.2f\\t %.4f\\n\', i-1, x, y);\n    k1 = h * f(x, y);\n    k2 = h * f(x + h/2, y + k1/2);\n    k3 = h * f(x + h/2, y + k2/2);\n    k4 = h * f(x + h, y + k3);\n    y = y + (k1 + 2*k2 + 2*k3 + k4)/6;\n    x = x + h;\nend\nfprintf(\'%d\\t%.2f\\t %.4f\\n\', n, x, y);\nfprintf(\'\\nApproximate value at x = %.2f is y = %.4f\\n\', xn, y);' },
-  { id:108, label:"MATLAB 8 — Euler's Method", text:"clc; clear;\nf = @(x, y) x + y;\nx0 = 0; y0 = 1; h = 0.1; xn = 1;\nn = (xn-x0)/h;\nx = x0; y = y0;\nfprintf('Step\\t x\\t y\\n');\nfor i = 1:n\n    fprintf('%d\\t%.1f\\t%.2f\\n', i-1, x, y);\n    y = y + h * f(x, y);\n    x = x + h;\nend\nfprintf('\\nApproximate value at x = %.1f is y = %.2f\\n', xn, y);" }
-];
+    function doFakeLogin() {
+        const pw = document.getElementById('password').value;
+        const err = document.getElementById('loginErr');
+        if (pw === KEY) {
+            err.style.display = 'none';
+            document.getElementById('answerSection').style.display = 'block';
+            renderAnswers();
+        } else {
+            err.style.display = 'block';
+            document.getElementById('password').value = '';
+        }
+    }
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } }
-function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+    function renderAnswers() {
+        const list = document.getElementById('answerList');
+        list.innerHTML = ANSWERS.map(a => `
+            <div class="program-row" onclick="copyCode(${a.id}, this)">
+                <span class="program-name">${a.name}</span>
+                <span class="copy-status">✓</span>
+            </div>
+        `).join('');
+    }
 
-// ── LOGIN ──
-function doLogin() {
-  const val = document.getElementById('pwInput').value;
-  const err = document.getElementById('loginErr');
-  if (val === PASSWORD) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    if (!load().length) save(SEED);
-    renderCards();
-  } else {
-    err.textContent = 'Wrong password. Try again.';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
-    setTimeout(() => err.textContent = '', 2500);
-  }
-}
-
-function togglePw() {
-  const inp = document.getElementById('pwInput');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-}
-
-// ── COPY ──
-function copyText(id, el) {
-  const item = load().find(i => i.id === id);
-  if (!item) return;
-  navigator.clipboard.writeText(item.text).then(() => {
-    el.classList.add('copied');
-    el.querySelector('.copy-hint').textContent = '✓ Copied!';
-    showToast('✓ Copied!');
-    setTimeout(() => { el.classList.remove('copied'); el.querySelector('.copy-hint').textContent = 'Click to copy'; }, 1500);
-  });
-}
-
-let tt;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1800);
-}
-
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function renderCards() {
-  const all = load();
-  const grid = document.getElementById('grid');
-  grid.innerHTML = all.map(item => `
-    <div class="card" onclick="copyText(${item.id}, this)">
-      <div class="flash"></div>
-      <div class="card-label">${escHtml(item.label)}</div>
-      <div class="card-text">${escHtml(item.text)}</div>
-      <div class="card-footer">
-        <span class="copy-hint">Click to copy</span>
-      </div>
-    </div>`).join('');
-}
+    function copyCode(id, el) {
+        const program = ANSWERS.find(a => a.id === id);
+        const statusIcon = el.querySelector('.copy-status');
+        
+        navigator.clipboard.writeText(program.code).then(() => {
+            statusIcon.style.opacity = '1';
+            const t = document.getElementById('toast');
+            t.style.opacity = '1';
+            setTimeout(() => {
+                statusIcon.style.opacity = '0';
+                t.style.opacity = '0';
+            }, 1000);
+        });
+    }
 </script>
+
 </body>
 </html>
